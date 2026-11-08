@@ -175,6 +175,12 @@ jobs:
           }
           EOF
 
+      - name: Unity Lisansini Aktive Et
+        uses: game-ci/unity-activator@v2
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+
       - name: Unity ile Xcode Projesi Cikar
         uses: game-ci/unity-builder@v4
         env:
