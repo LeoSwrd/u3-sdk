@@ -18,8 +18,9 @@ jobs:
           rm -rf Builds/Shared/Maps/Russia Builds/Shared/Maps/Germany Builds/Shared/Maps/Washington Builds/Shared/Maps/Yukon
           sed -i '' 's/iPhone: /iPhone: DISABLESTEAMWORKS;DISABLEBATTLEYE;/' ProjectSettings/ProjectSettings.asset
 
-      - name: Minecraft Tarzi Mobil Kontrolleri Entegre Et
+      - name: Ekrana Dokunmatik Tuslari (Touch UI) Ekle
         run: |
+          mkdir -p Assets/Unturned/Scripts
           cat << 'EOF' > Assets/Unturned/Scripts/MobileTouchControls.cs
           using UnityEngine;
           using SDG.Unturned;
@@ -46,7 +47,6 @@ jobs:
 
               void Start()
               {
-                  // Yari saydam modern mobil buton kaplamasi
                   btnTex = new Texture2D(1, 1);
                   btnTex.SetPixel(0, 0, new Color(0.1f, 0.1f, 0.1f, 0.45f));
                   btnTex.Apply();
@@ -73,7 +73,6 @@ jobs:
                   {
                       Vector2 guiPos = new Vector2(t.position.x, Screen.height - t.position.y);
 
-                      // Sol alt: Suruklemeli Joystick / D-Pad alani
                       if (t.phase == TouchPhase.Began && t.position.x < Screen.width * 0.4f && t.position.y < Screen.height * 0.65f && moveFingerId == -1)
                       {
                           moveFingerId = t.fingerId;
@@ -85,8 +84,8 @@ jobs:
                           {
                               Vector2 diff = guiPos - moveCenter;
                               moveDir = Vector2.ClampMagnitude(diff / (padRadius * 0.6f), 1f);
-                              moveDir.y = -moveDir.y; // Yukari = Ileri
-                              isSprinting = diff.magnitude > (padRadius * 0.55f); // Ileri tam itince kosar
+                              moveDir.y = -moveDir.y;
+                              isSprinting = diff.magnitude > (padRadius * 0.55f);
                           }
                           else if (t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled)
                           {
@@ -95,7 +94,6 @@ jobs:
                               isSprinting = false;
                           }
                       }
-                      // Sag ekran: Kaydirarak kamera cevirme (Free Look)
                       else if (t.position.x >= Screen.width * 0.4f)
                       {
                           if (t.phase == TouchPhase.Began && lookFingerId == -1)
@@ -127,7 +125,6 @@ jobs:
                   float u = Screen.height / 7.5f;
                   style.fontSize = Mathf.RoundToInt(u * 0.24f);
 
-                  // Ust Orta: Minecraft Tarzi Hizli Hotbar + Canta + Menü
                   float topW = u * 0.95f;
                   float startX = (Screen.width * 0.5f) - (topW * 2.5f);
                   if (GUI.Button(new Rect(startX, 15, topW, u * 0.65f), "1. Silah", style))
@@ -146,7 +143,6 @@ jobs:
 
                   if (PlayerDashboardUI.active) return;
 
-                  // Sol Alt: Minecraft PE Tarzi Yari Saydam D-Pad + Ortasinda Egilme
                   float cx = moveCenter.x;
                   float cy = moveCenter.y;
                   GUI.Box(new Rect(cx - u * 0.5f, cy - u * 1.55f, u, u), "▲", style);
@@ -154,7 +150,6 @@ jobs:
                   GUI.Box(new Rect(cx - u * 1.55f, cy - u * 0.5f, u, u), "◀", style);
                   GUI.Box(new Rect(cx + u * 0.55f, cy - u * 0.5f, u, u), "▶", style);
 
-                  // D-Pad Ortasindaki Tus: Egilme (Minecraft'taki gibi)
                   if (GUI.Button(new Rect(cx - u * 0.5f, cy - u * 0.5f, u, u), "Eğil", style))
                   {
                       if (Player.player.stance.stance == EPlayerStance.CROUCH)
@@ -163,18 +158,15 @@ jobs:
                           Player.player.stance.checkStance(EPlayerStance.CROUCH);
                   }
 
-                  // Sag Alt: Seffaf Modern Aksiyon Butonlari
                   isJumping = GUI.RepeatButton(new Rect(Screen.width - u * 1.35f, Screen.height - u * 1.6f, u * 1.1f, u * 1.1f), "Zıpla", style);
                   isFiring = GUI.RepeatButton(new Rect(Screen.width - u * 2.75f, Screen.height - u * 2.2f, u * 1.25f, u * 1.25f), "ATEŞ /\nVUR", style);
                   isAiming = GUI.RepeatButton(new Rect(Screen.width - u * 1.35f, Screen.height - u * 2.9f, u * 1.1f, u * 1.0f), "Nişan", style);
 
-                  // Esya Toplama / Kapi Acma / Araca Binme (F Tusu)
                   if (GUI.Button(new Rect(Screen.width - u * 2.75f, Screen.height - u * 3.4f, u * 1.15f, u * 0.95f), "Etkileşim\n(Al / Bin)", style))
                   {
                       PlayerInteract.interact();
                   }
 
-                  // Sarjor Degistirme (R Tusu)
                   if (GUI.Button(new Rect(Screen.width - u * 4.0f, Screen.height - u * 1.4f, u * 1.05f, u * 0.9f), "Şarjör\n(R)", style))
                   {
                       Player.player.equipment.sendSlot(0);
