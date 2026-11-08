@@ -185,6 +185,7 @@ jobs:
           projectPath: .
           targetPlatform: iOS
           buildsPath: build
+          versioning: None
 
       - name: Imzasiz IPA Paketle
         run: |
