@@ -1,0 +1,44 @@
+name: Unturned iOS IPA Derleyici (Minecraft Tarzi Mobil Kontrol)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_ios:
+    name: iOS IPA Olustur
+    runs-on: macos-latest
+    steps:
+      - name: Kodlari Indir
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Haritalari Sil ve Steamworks Kapat
+        run: |
+          rm -rf Builds/Shared/Maps/Russia Builds/Shared/Maps/Germany Builds/Shared/Maps/Washington Builds/Shared/Maps/Yukon
+          sed -i '' 's/iPhone: /iPhone: DISABLESTEAMWORKS;DISABLEBATTLEYE;/' ProjectSettings/ProjectSettings.asset
+
+      - name: Unity ile Xcode Projesi Cikar
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+        with:
+          projectPath: .
+          targetPlatform: iOS
+          buildsPath: build
+
+      - name: Imzasiz IPA Paketle
+        run: |
+          cd build/iOS/iOS
+          xcodebuild -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release -sdk iphoneos build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+          mkdir Payload
+          cp -r build/Release-iphoneos/*.app Payload/
+          zip -r Unturned-iOS.ipa Payload
+
+      - name: IPA Dosyasini Indirmeye Sun
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unturned-iOS-IPA
+          path: build/iOS/iOS/Unturned-iOS.ipa
